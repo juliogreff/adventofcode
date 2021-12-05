@@ -45,7 +45,8 @@ func main() {
 		panic(err)
 	}
 
-	o2, co2 := filterReports(counters, size-1, reports, reports)
+	o2 := filterReports(counters, size-1, reports, selectO2)
+	co2 := filterReports(counters, size-1, reports, selectCO2)
 
 	fmt.Printf("o2: %d, co2: %d, answer: %d\n", o2, co2, o2*co2)
 }
@@ -63,26 +64,19 @@ func buildCounter(i int, reports []int) counter {
 	return c
 }
 
-func filterReports(counters map[int]*counter, i int, o2, co2 []int) (int, int) {
+func filterReports(counters map[int]*counter, i int, reports []int, fn func(counter, int, int) bool) int {
 	if i == 0 {
-		return o2[0], co2[0]
+		return reports[0]
 	}
 
-	if len(o2) > 1 {
-		counter := buildCounter(i, o2)
-		o2 = selekt(o2, func(report int) bool {
-			return selectO2(counter, i, report)
+	if len(reports) > 1 {
+		counter := buildCounter(i, reports)
+		reports = selekt(reports, func(report int) bool {
+			return fn(counter, i, report)
 		})
 	}
 
-	if len(co2) > 1 {
-		counter := buildCounter(i, co2)
-		co2 = selekt(co2, func(report int) bool {
-			return selectCO2(counter, i, report)
-		})
-	}
-
-	return filterReports(counters, i-1, o2, co2)
+	return filterReports(counters, i-1, reports, fn)
 }
 
 func selekt(s []int, fn func(int) bool) []int {

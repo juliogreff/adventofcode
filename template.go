@@ -19,7 +19,8 @@ func main() {
 
 	scanner := bufio.NewScanner(file)
 	for scanner.Scan() {
-		fmt.Printf("%s\n", scanner.Text())
+		line := scanner.Text()
+		fmt.Printf("%s\n", line)
 	}
 
 	if err := scanner.Err(); err != nil {

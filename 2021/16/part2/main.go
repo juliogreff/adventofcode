@@ -9,6 +9,62 @@ import (
 	"strings"
 )
 
+var operators = map[string]func([]int64) int64{
+	"000": func(operands []int64) int64 {
+		var sum int64
+		for _, o := range operands {
+			sum += o
+		}
+		return sum
+	},
+	"001": func(operands []int64) int64 {
+		var product int64 = 1
+		for _, o := range operands {
+			product *= o
+		}
+		return product
+	},
+	"010": func(operands []int64) int64 {
+		var min int64 = math.MaxInt64
+		for _, o := range operands {
+			if o < min {
+				min = o
+			}
+		}
+		return min
+	},
+	"011": func(operands []int64) int64 {
+		var max int64 = math.MinInt64
+		for _, o := range operands {
+			if o > max {
+				max = o
+			}
+		}
+		return max
+	},
+	"101": func(operands []int64) int64 {
+		if operands[0] > operands[1] {
+			return int64(1)
+		} else {
+			return int64(0)
+		}
+	},
+	"110": func(operands []int64) int64 {
+		if operands[0] < operands[1] {
+			return int64(1)
+		} else {
+			return int64(0)
+		}
+	},
+	"111": func(operands []int64) int64 {
+		if operands[0] == operands[1] {
+			return int64(1)
+		} else {
+			return int64(0)
+		}
+	},
+}
+
 func main() {
 	path := os.Args[1]
 
@@ -88,90 +144,15 @@ func parsePacket(str string) (int64, string) {
 			}
 		}
 
-		var result int64
-		switch t {
-		case "000":
-			result = sum(operands)
-		case "001":
-			result = product(operands)
-		case "010":
-			result = min(operands)
-		case "011":
-			result = max(operands)
-		case "101":
-			result = gt(operands)
-		case "110":
-			result = lt(operands)
-		case "111":
-			result = eq(operands)
-		default:
+		operator, ok := operators[t]
+		if !ok {
 			panic(fmt.Sprintf("operator %d not implented", parseBin(t)))
 		}
 
-		return result, body
+		return operator(operands), body
 	}
 
 	return -1, ""
-}
-
-func sum(operands []int64) int64 {
-	var sum int64
-	for _, o := range operands {
-		sum += o
-	}
-	return sum
-}
-
-func product(operands []int64) int64 {
-	var product int64 = 1
-	for _, o := range operands {
-		product *= o
-	}
-	return product
-}
-
-func min(operands []int64) int64 {
-	var min int64 = math.MaxInt64
-	for _, o := range operands {
-		if o < min {
-			min = o
-		}
-	}
-	return min
-}
-
-func max(operands []int64) int64 {
-	var max int64 = math.MinInt64
-	for _, o := range operands {
-		if o > max {
-			max = o
-		}
-	}
-	return max
-}
-
-func gt(operands []int64) int64 {
-	if operands[0] > operands[1] {
-		return int64(1)
-	} else {
-		return int64(0)
-	}
-}
-
-func lt(operands []int64) int64 {
-	if operands[0] < operands[1] {
-		return int64(1)
-	} else {
-		return int64(0)
-	}
-}
-
-func eq(operands []int64) int64 {
-	if operands[0] == operands[1] {
-		return int64(1)
-	} else {
-		return int64(0)
-	}
 }
 
 func parseBin(str string) int64 {

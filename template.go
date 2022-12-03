@@ -4,28 +4,18 @@ import (
 	"bufio"
 	"fmt"
 	"os"
+
+	"github.com/juliogreff/adventofcode/pkg/mustread"
 )
 
 func main() {
-	path := os.Args[1]
+	mustread.File(os.Args[1], func(scanner *bufio.Scanner) {
+		var answer int
+		for scanner.Scan() {
+			line := scanner.Text()
+			fmt.Printf("%s\n", line)
+		}
 
-	file, err := os.Open(path)
-	if err != nil {
-		panic(err)
-	}
-	defer file.Close()
-
-	var answer int
-
-	scanner := bufio.NewScanner(file)
-	for scanner.Scan() {
-		line := scanner.Text()
-		fmt.Printf("%s\n", line)
-	}
-
-	if err := scanner.Err(); err != nil {
-		panic(err)
-	}
-
-	fmt.Printf("%d\n", answer)
+		fmt.Printf("%d\n", answer)
+	})
 }

@@ -1,4 +1,4 @@
-YEAR ?= 2021
+YEAR ?= 2022
 DAY ?= 01
 PART ?= 1
 

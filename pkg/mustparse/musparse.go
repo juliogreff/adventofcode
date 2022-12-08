@@ -19,6 +19,16 @@ func Int(str string) int {
 	return int(i)
 }
 
+func Ints(str string) []int {
+	ints := make([]int, 0, len(str))
+
+	for _, c := range str {
+		ints = append(ints, Int(string(c)))
+	}
+
+	return ints
+}
+
 func SplitInts(str, sep string) []int {
 	separated := strings.Split(str, sep)
 	ints := make([]int, 0, len(separated))

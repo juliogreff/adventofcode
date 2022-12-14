@@ -3,6 +3,8 @@ package mustparse
 import (
 	"strconv"
 	"strings"
+
+	"github.com/juliogreff/adventofcode/pkg/xy"
 )
 
 const (
@@ -47,4 +49,12 @@ func Float(str string) float64 {
 	}
 
 	return f
+}
+
+func XY(str string) xy.XY {
+	parts := strings.Split(str, ",")
+	return xy.XY{
+		Int(parts[0]),
+		Int(parts[1]),
+	}
 }

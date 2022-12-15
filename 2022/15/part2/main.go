@@ -4,32 +4,14 @@ import (
 	"bufio"
 	"fmt"
 	"os"
-	"sort"
 	"strings"
 
 	"github.com/juliogreff/adventofcode/pkg/intmath"
+	"github.com/juliogreff/adventofcode/pkg/lists"
 	"github.com/juliogreff/adventofcode/pkg/mustread"
 	"github.com/juliogreff/adventofcode/pkg/segment"
 	"github.com/juliogreff/adventofcode/pkg/xy"
 )
-
-type sortable []segment.Segment
-
-func (s sortable) Len() int {
-	return len(s)
-}
-
-func (s sortable) Swap(i, j int) {
-	a := s[i]
-	b := s[j]
-
-	s[i] = b
-	s[j] = a
-}
-
-func (s sortable) Less(i, j int) bool {
-	return s[i].Min < s[j].Min
-}
 
 func main() {
 	max := 4000000
@@ -40,14 +22,12 @@ func main() {
 	}
 
 	mustread.File(file, func(scanner *bufio.Scanner) {
-		segmentsByDepth := make([]sortable, max, max)
+		segmentsByDepth := make([][]segment.Segment, max, max)
 
 		for scanner.Scan() {
-			line := scanner.Text()
-
 			var x, y, bx, by int
 
-			fmt.Sscanf(line, "Sensor at x=%d, y=%d: closest beacon is at x=%d, y=%d", &x, &y, &bx, &by)
+			fmt.Sscanf(scanner.Text(), "Sensor at x=%d, y=%d: closest beacon is at x=%d, y=%d", &x, &y, &bx, &by)
 
 			sensor := xy.XY{x, y}
 			beacon := xy.XY{bx, by}
@@ -74,9 +54,11 @@ func main() {
 	})
 }
 
-func findGap(segmentsByDepth []sortable, max int) xy.XY {
+func findGap(segmentsByDepth [][]segment.Segment, max int) xy.XY {
 	for depth, segments := range segmentsByDepth {
-		sort.Sort(segments)
+		lists.Sort(segments, func(a, b segment.Segment) bool {
+			return a.Min < b.Min
+		})
 
 		gap := segment.Segment{
 			Min: 0,

@@ -1,6 +1,10 @@
 package segment
 
-import "github.com/juliogreff/adventofcode/pkg/intmath"
+import (
+	"fmt"
+
+	"github.com/juliogreff/adventofcode/pkg/intmath"
+)
 
 type Segment struct {
 	Min int
@@ -14,13 +18,18 @@ func (s Segment) Clamp(min, max int) Segment {
 	}
 }
 
-// func overlap(a, b segment.) bool {
-// 	return intmath.Max(a.min, a.max) >= intmath.Min(b.min, b.max) && intmath.Max(b.min, b.max) >= intmath.Min(a.min, a.max)
-// }
-//
-// func expand(a, b segment) segment {
-// 	return segment{
-// 		min: intmath.Min(a.min, b.min),
-// 		max: intmath.Max(a.max, b.max),
-// 	}
-// }
+func (a Segment) Overlap(b Segment) bool {
+	return intmath.Max(a.Min, a.Max) >= intmath.Min(b.Min, b.Max) &&
+		intmath.Max(b.Min, b.Max) >= intmath.Min(a.Min, a.Max)
+}
+
+func (a Segment) Expand(b Segment) Segment {
+	if !a.Overlap(b) {
+		panic(fmt.Errorf("segment %v does not overlap with %v, cannot expand", a, b))
+	}
+
+	return Segment{
+		Min: intmath.Min(a.Min, b.Min),
+		Max: intmath.Max(a.Max, b.Max),
+	}
+}

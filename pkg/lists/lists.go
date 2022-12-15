@@ -1,5 +1,37 @@
 package lists
 
+import "sort"
+
+type sortable[T any] struct {
+	list   []T
+	lessFn func(T, T) bool
+}
+
+func (s sortable[T]) Len() int {
+	return len(s.list)
+}
+
+func (s sortable[T]) Swap(i, j int) {
+	a := s.list[i]
+	b := s.list[j]
+
+	s.list[i] = b
+	s.list[j] = a
+}
+
+func (s sortable[T]) Less(i, j int) bool {
+	return s.lessFn(s.list[i], s.list[j])
+}
+
+func Sort[T any](list []T, lessFn func(T, T) bool) {
+	s := sortable[T]{
+		list:   list,
+		lessFn: lessFn,
+	}
+
+	sort.Sort(s)
+}
+
 func Reverse[T any](original []T) []T {
 	reversed := make([]T, len(original))
 	copy(reversed, original)

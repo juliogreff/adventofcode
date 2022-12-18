@@ -43,3 +43,19 @@ func Reverse[T any](original []T) []T {
 
 	return reversed
 }
+
+func CopyMap[K comparable, V any](m map[K]V) map[K]V {
+	cp := make(map[K]V, len(m))
+	for k, v := range m {
+		cp[k] = v
+	}
+	return cp
+}
+
+func FilterMapInPlace[K comparable, V any](m map[K]V, fn func(K, V) bool) {
+	for k, v := range m {
+		if !fn(k, v) {
+			delete(m, k)
+		}
+	}
+}

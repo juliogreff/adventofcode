@@ -13,8 +13,13 @@ import (
 	"github.com/juliogreff/adventofcode/pkg/xy"
 )
 
+type signal struct {
+	sensor   xy.XY
+	distance int
+}
+
 func main() {
-	max := 4000000
+	max := 4_000_000
 
 	file := os.Args[1]
 	if strings.Contains(file, "test") {
@@ -22,7 +27,7 @@ func main() {
 	}
 
 	mustread.File(file, func(scanner *bufio.Scanner) {
-		segmentsByDepth := make([][]segment.Segment, max, max)
+		var signals []signal
 
 		for scanner.Scan() {
 			var x, y, bx, by int
@@ -32,16 +37,22 @@ func main() {
 			sensor := xy.XY{x, y}
 			beacon := xy.XY{bx, by}
 
-			manhattan := beacon.ManhattanDistance(sensor)
+			signals = append(signals, signal{sensor, sensor.ManhattanDistance(beacon)})
+		}
 
-			for depth := intmath.Max(0, sensor.Y-manhattan); depth < intmath.Min(max, sensor.Y+manhattan); depth++ {
-				if segmentsByDepth[depth] == nil {
-					segmentsByDepth[depth] = make([]segment.Segment, 0, 16)
-				}
+		segmentsByDepth := make([][]segment.Segment, max, max)
+		for depth := 0; depth < max; depth++ {
+			segmentsByDepth[depth] = make([]segment.Segment, 0, 16)
+
+			signals := selectSignals(signals, depth)
+			for _, signal := range signals {
+				sensor := signal.sensor
+				distance := signal.distance
+
 				s := segment.Segment{
-					sensor.X - manhattan + intmath.Abs(depth-sensor.Y),
-					sensor.X + manhattan - intmath.Abs(depth-sensor.Y),
-				}.Clamp(0, max)
+					intmath.Max(0, sensor.X-distance+intmath.Abs(depth-sensor.Y)),
+					intmath.Min(max, sensor.X+distance-intmath.Abs(depth-sensor.Y)),
+				}
 
 				segmentsByDepth[depth] = append(segmentsByDepth[depth], s)
 			}
@@ -51,6 +62,21 @@ func main() {
 		answer := beacon.X*4000000 + beacon.Y
 		fmt.Printf("%d\n", answer)
 	})
+}
+
+func selectSignals(signals []signal, depth int) []signal {
+	selected := make([]signal, 0, len(signals))
+
+	for _, signal := range signals {
+		sensor := signal.sensor
+		distance := signal.distance
+
+		if depth >= (sensor.Y-distance) && depth <= (sensor.Y+distance) {
+			selected = append(selected, signal)
+		}
+	}
+
+	return selected
 }
 
 func findGap(segmentsByDepth [][]segment.Segment, max int) xy.XY {
